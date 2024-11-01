@@ -7,11 +7,25 @@ import { compare } from "bcryptjs";
 import { users } from "./db/userSchema";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user.id = token.id as string;
+      return session;
+    },
+  },
+
   providers: [
     Credentials({
       credentials: {
         email: {},
         password: {},
+      
       },
       async authorize(credentials) {
         // const results, const user = reustls[0]
