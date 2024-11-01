@@ -148,6 +148,17 @@ export default function RegisterPage() {
               </form>
             </FormProvider>
           </CardContent>
+          <CardFooter className="flex flex-col gap-2">
+          <div className="text-small text-muted-foreground ">
+            Don't hsvr an account?{" "}
+            <Link href="./register " className="underline">
+              Register
+            </Link>
+          </div>
+          <div>
+            Forget your password? <Link href="/reset-password" className="underline">Reset Password</Link>
+          </div>
+        </CardFooter>
         </Card>
       )}
     </main>
