@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { passwordSchema } from "@/validation/passwordSchema";
 import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
+import { changePassword } from "./action";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z
   .object({
@@ -36,6 +38,7 @@ const formSchema = z
 
 export default function ChangePasswordForm() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,9 +49,26 @@ export default function ChangePasswordForm() {
     },
   });
 
-  //   console.log(form);
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    const response = await changePassword({
+      currentPassword: data.currentPassword,
+      password: data.password,
+      passwordConfirm: data.passwordConfirm,
+    });
 
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {};
+    if (response?.error) {
+      form.setError("root", {
+        message: response.message,
+      });
+    } else {
+      toast({
+        title: "Password changed",
+        description: "Your password has beed updated",
+        className: "bg-green-500 text-white",
+      });
+      form.reset();
+    }
+  };
 
   return (
     <FormProvider {...form}>
@@ -60,22 +80,25 @@ export default function ChangePasswordForm() {
           className="gap-5 flex flex-col"
           disabled={form.formState.isSubmitting}
         >
-          {/* Email Field */}
-          {/* Password Field */}
+          {/* current password*/}
           <FormField
             control={form.control}
             name="currentPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel> Current Password</FormLabel>
+                <FormLabel>Current Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="password" {...field} type="password" />
+                  <Input
+                    placeholder="current password"
+                    {...field}
+                    type="password"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {/* Password Field Confirm*/}
+          {/* Password Field */}
           <FormField
             control={form.control}
             name="password"
@@ -89,7 +112,7 @@ export default function ChangePasswordForm() {
               </FormItem>
             )}
           />
-          {/* Current Password Field */}
+          {/* Password Confirm Field */}
           <FormField
             control={form.control}
             name="passwordConfirm"
@@ -98,7 +121,7 @@ export default function ChangePasswordForm() {
                 <FormLabel>Password Confirm</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder=" Current password"
+                    placeholder="password confirm"
                     {...field}
                     type="password"
                   />
@@ -107,10 +130,12 @@ export default function ChangePasswordForm() {
               </FormItem>
             )}
           />
+
           {form.formState.errors.root && (
             <FormMessage>{form.formState.errors.root.message}</FormMessage>
           )}
-          <Button type="submit">Current Password</Button>
+
+          <Button type="submit">Change Password</Button>
         </fieldset>
       </form>
     </FormProvider>
